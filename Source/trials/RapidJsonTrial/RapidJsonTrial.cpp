@@ -57,7 +57,7 @@ public:
 
 		doc.Accept(writer);
 
-		const wchar_t* wstr = (const wchar_t*)s.GetString();
+		const wchar_t* wstr = s.GetString();
 		return wstr;
 	}
 };

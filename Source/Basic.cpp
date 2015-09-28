@@ -16,7 +16,7 @@
 EXTERN_C void WINAPI OnCommand(HWND hwnd)
 {
 	MessageBox(hwnd, L"Hello World!", L"基本的なサンプル", MB_OK);	
-
+	
 	std::locale::global(std::locale("japanese"));
 	//Editor_DocSaveFile(hwnd, 0, L"C:\\temp\\a.txt");
 

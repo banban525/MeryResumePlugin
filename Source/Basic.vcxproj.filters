@@ -26,7 +26,6 @@
     <None Include="Basic.def">
       <Filter>ソース ファイル</Filter>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">

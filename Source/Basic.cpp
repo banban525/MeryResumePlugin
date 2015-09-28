@@ -1,29 +1,70 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "plugin.h"
+#include "rapidjson/document.h"
 
 #define IDS_MENU_TEXT 1
 #define IDS_STATUSMESSAGE 2
 #define IDI_ICON 101
 
+
 // -----------------------------------------------------------------------------
 // OnCommand
-// ƒvƒ‰ƒOƒCƒ“‚ğÀs‚µ‚½‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·
-// ƒpƒ‰ƒ[ƒ^
-//   hwnd: ƒEƒBƒ“ƒhƒE‚Ìƒnƒ“ƒhƒ‹
+// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’å®Ÿè¡Œã—ãŸæ™‚ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™
+// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+//   hwnd: ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ãƒãƒ³ãƒ‰ãƒ«
 
 EXTERN_C void WINAPI OnCommand(HWND hwnd)
 {
-	MessageBox(hwnd, L"Hello World!", L"Šî–{“I‚ÈƒTƒ“ƒvƒ‹", MB_OK);
+	MessageBox(hwnd, L"Hello World!", L"åŸºæœ¬çš„ãªã‚µãƒ³ãƒ—ãƒ«", MB_OK);	
+
+	std::locale::global(std::locale("japanese"));
+	//Editor_DocSaveFile(hwnd, 0, L"C:\\temp\\a.txt");
+
+	std::wofstream ofs(L"C:\\work\\mery-plugin-sdk\\SDK\\C\\Basic\\storedContent\\aaaa.txt");
+
+	LRESULT count = Editor_Info(hwnd, MI_GET_DOC_COUNT, 0);
+
+	std::wstring fileNameSum(L"");
+
+
+	for (int i = 0; i < count; i++)
+	{
+		wchar_t fileName[2048];
+		LRESULT result = Editor_DocInfo(hwnd, i, MI_GET_FILE_NAME, (LPARAM)fileName);
+
+		std::wstring fileName2(fileName);
+		fileNameSum += fileName2;
+		fileNameSum += L"\r\n";
+
+
+		UINT_PTR lineCount = Editor_GetDocLines(hwnd, i, POS_LOGICAL);
+		for (uint32_t lineIndex = 0; lineIndex < lineCount; lineIndex++)
+		{
+			GET_LINE_INFO lineInfo;
+			lineInfo.cch = 0;
+			lineInfo.yLine = lineIndex;
+			lineInfo.flags = FLAG_LOGICAL;
+			UINT_PTR size = Editor_GetLine(hwnd, &lineInfo, nullptr);
+			wchar_t* szLine = new wchar_t[size];
+			lineInfo.cch = size;
+			Editor_GetLine(hwnd, &lineInfo, szLine);
+			ofs << szLine << std::endl;
+			delete szLine;
+		}
+	}
+	ofs.close();
+
+	MessageBox(hwnd, fileNameSum.c_str(), L"Hello World!", MB_OK);
 }
 
 // -----------------------------------------------------------------------------
 // QueryStatus
-//   ƒvƒ‰ƒOƒCƒ“‚ªÀs‰Â”\‚©A‚Ü‚½‚Íƒ`ƒFƒbƒN‚³‚ê‚½ó‘Ô‚©‚ğ’²‚×‚Ü‚·
-// ƒpƒ‰ƒ[ƒ^
-//   hwnd:      ƒEƒBƒ“ƒhƒE‚Ìƒnƒ“ƒhƒ‹
-//   pbChecked: ƒ`ƒFƒbƒN‚Ìó‘Ô
-// –ß‚è’l
-//   Às‰Â”\‚Å‚ ‚ê‚ÎTrue‚ğ•Ô‚µ‚Ü‚·
+//   ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ãŒå®Ÿè¡Œå¯èƒ½ã‹ã€ã¾ãŸã¯ãƒã‚§ãƒƒã‚¯ã•ã‚ŒãŸçŠ¶æ…‹ã‹ã‚’èª¿ã¹ã¾ã™
+// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+//   hwnd:      ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ãƒãƒ³ãƒ‰ãƒ«
+//   pbChecked: ãƒã‚§ãƒƒã‚¯ã®çŠ¶æ…‹
+// æˆ»ã‚Šå€¤
+//   å®Ÿè¡Œå¯èƒ½ã§ã‚ã‚Œã°Trueã‚’è¿”ã—ã¾ã™
 
 EXTERN_C BOOL WINAPI QueryStatus(HWND hwnd, LPBOOL pbChecked)
 {
@@ -32,9 +73,9 @@ EXTERN_C BOOL WINAPI QueryStatus(HWND hwnd, LPBOOL pbChecked)
 
 // -----------------------------------------------------------------------------
 // GetMenuTextID
-//   ƒƒjƒ…[‚É•\¦‚·‚éƒeƒLƒXƒg‚ÌƒŠƒ\[ƒX¯•Êq‚ğæ“¾‚µ‚Ü‚·
-// –ß‚è’l
-//   ƒŠƒ\[ƒX¯•Êq
+//   ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã®ãƒªã‚½ãƒ¼ã‚¹è­˜åˆ¥å­ã‚’å–å¾—ã—ã¾ã™
+// æˆ»ã‚Šå€¤
+//   ãƒªã‚½ãƒ¼ã‚¹è­˜åˆ¥å­
 
 EXTERN_C UINT WINAPI GetMenuTextID()
 {
@@ -43,9 +84,9 @@ EXTERN_C UINT WINAPI GetMenuTextID()
 
 // -----------------------------------------------------------------------------
 // GetStatusMessageID
-//   ƒc[ƒ‹ƒ`ƒbƒv‚É•\¦‚·‚éƒeƒLƒXƒg‚ÌƒŠƒ\[ƒX¯•Êq‚ğæ“¾‚µ‚Ü‚·
-// –ß‚è’l
-//   ƒŠƒ\[ƒX¯•Êq
+//   ãƒ„ãƒ¼ãƒ«ãƒãƒƒãƒ—ã«è¡¨ç¤ºã™ã‚‹ãƒ†ã‚­ã‚¹ãƒˆã®ãƒªã‚½ãƒ¼ã‚¹è­˜åˆ¥å­ã‚’å–å¾—ã—ã¾ã™
+// æˆ»ã‚Šå€¤
+//   ãƒªã‚½ãƒ¼ã‚¹è­˜åˆ¥å­
 
 EXTERN_C UINT WINAPI GetStatusMessageID()
 {
@@ -54,9 +95,9 @@ EXTERN_C UINT WINAPI GetStatusMessageID()
 
 // -----------------------------------------------------------------------------
 // GetIconID
-//   ƒc[ƒ‹ƒo[‚É•\¦‚·‚éƒAƒCƒRƒ“‚ÌƒŠƒ\[ƒX¯•Êq‚ğæ“¾‚µ‚Ü‚·
-// –ß‚è’l
-//   ƒŠƒ\[ƒX¯•Êq
+//   ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã«è¡¨ç¤ºã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã®ãƒªã‚½ãƒ¼ã‚¹è­˜åˆ¥å­ã‚’å–å¾—ã—ã¾ã™
+// æˆ»ã‚Šå€¤
+//   ãƒªã‚½ãƒ¼ã‚¹è­˜åˆ¥å­
 
 EXTERN_C UINT WINAPI GetIconID()
 {
@@ -65,55 +106,98 @@ EXTERN_C UINT WINAPI GetIconID()
 
 // -----------------------------------------------------------------------------
 // OnEvents
-//   ƒCƒxƒ“ƒg‚ª”­¶‚µ‚½‚ÉŒÄ‚Ño‚³‚ê‚Ü‚·
-// ƒpƒ‰ƒ[ƒ^
-//   hwnd:   ƒEƒBƒ“ƒhƒE‚Ìƒnƒ“ƒhƒ‹
-//   nEvent: ƒCƒxƒ“ƒg‚Ìí—Ş
-//   lParam: ƒƒbƒZ[ƒW“Á—L‚Ì’Ç‰Áî•ñ
-// ”õl
-//   EVENT_CREATE:             ƒGƒfƒBƒ^‚ğ‹N“®‚µ‚½
-//   EVENT_CLOSE:              ƒGƒfƒBƒ^‚ğI—¹‚µ‚½
-//   EVENT_CREATE_FRAME:       ƒtƒŒ[ƒ€‚ğì¬‚³‚ê‚½
-//   EVENT_CLOSE_FRAME:        ƒtƒŒ[ƒ€‚ª”jŠü‚³‚ê‚½
-//   EVENT_SET_FOCUS:          ƒtƒH[ƒJƒX‚ğæ“¾‚µ‚½
-//   EVENT_KILL_FOCUS:         ƒtƒH[ƒJƒX‚ğ¸‚Á‚½
-//   EVENT_FILE_OPENED:        ƒtƒ@ƒCƒ‹‚ğŠJ‚¢‚½
-//   EVENT_FILE_SAVED:         ƒtƒ@ƒCƒ‹‚ğ•Û‘¶‚µ‚½
-//   EVENT_MODIFIED:           XV‚Ìó‘Ô‚ª•ÏX‚³‚ê‚½
-//   EVENT_CARET_MOVED:        ƒJ[ƒ\ƒ‹‚ªˆÚ“®‚µ‚½
-//   EVENT_SCROLL:             ƒXƒNƒ[ƒ‹‚³‚ê‚½
-//   EVENT_SEL_CHANGED:        ‘I‘ğ”ÍˆÍ‚ª•ÏX‚³‚ê‚½
-//   EVENT_CHANGED:            ƒeƒLƒXƒg‚ª•ÏX‚³‚ê‚½
-//   EVENT_CHAR:               •¶š‚ª“ü—Í‚³‚ê‚½
-//   EVENT_MODE_CHANGED:       •ÒWƒ‚[ƒh‚ª•ÏX‚³‚ê‚½
-//   EVENT_DOC_SEL_CHANGED:    ƒAƒNƒeƒBƒu‚È•¶‘‚ª•ÏX‚³‚ê‚½
-//   EVENT_DOC_CLOSE:          •¶‘‚ğ•Â‚¶‚½
-//   EVENT_TAB_MOVED:          ƒ^ƒu‚ªˆÚ“®‚³‚ê‚½
-//   EVENT_CUSTOM_BAR_CLOSING: ƒJƒXƒ^ƒ€ƒo[‚ğ•Â‚¶‚æ‚¤‚Æ‚µ‚½
-//   EVENT_CUSTOM_BAR_CLOSED:  ƒJƒXƒ^ƒ€ƒo[‚ğ•Â‚¶‚½
-//   EVENT_TOOL_BAR_CLOSED:    ƒc[ƒ‹ƒo[‚ğ•Â‚¶‚½
-//   EVENT_TOOL_BAR_SHOW:      ƒc[ƒ‹ƒo[‚ª•\¦‚³‚ê‚½
-//   EVENT_IDLE:               ƒAƒCƒhƒ‹
+//   ã‚¤ãƒ™ãƒ³ãƒˆãŒç™ºç”Ÿã—ãŸæ™‚ã«å‘¼ã³å‡ºã•ã‚Œã¾ã™
+// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+//   hwnd:   ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ãƒãƒ³ãƒ‰ãƒ«
+//   nEvent: ã‚¤ãƒ™ãƒ³ãƒˆã®ç¨®é¡
+//   lParam: ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ç‰¹æœ‰ã®è¿½åŠ æƒ…å ±
+// å‚™è€ƒ
+//   EVENT_CREATE:             ã‚¨ãƒ‡ã‚£ã‚¿ã‚’èµ·å‹•ã—ãŸæ™‚
+//   EVENT_CLOSE:              ã‚¨ãƒ‡ã‚£ã‚¿ã‚’çµ‚äº†ã—ãŸæ™‚
+//   EVENT_CREATE_FRAME:       ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’ä½œæˆã•ã‚ŒãŸæ™‚
+//   EVENT_CLOSE_FRAME:        ãƒ•ãƒ¬ãƒ¼ãƒ ãŒç ´æ£„ã•ã‚ŒãŸæ™‚
+//   EVENT_SET_FOCUS:          ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’å–å¾—ã—ãŸæ™‚
+//   EVENT_KILL_FOCUS:         ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’å¤±ã£ãŸæ™‚
+//   EVENT_FILE_OPENED:        ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã„ãŸæ™‚
+//   EVENT_FILE_SAVED:         ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä¿å­˜ã—ãŸæ™‚
+//   EVENT_MODIFIED:           æ›´æ–°ã®çŠ¶æ…‹ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚
+//   EVENT_CARET_MOVED:        ã‚«ãƒ¼ã‚½ãƒ«ãŒç§»å‹•ã—ãŸæ™‚
+//   EVENT_SCROLL:             ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã•ã‚ŒãŸæ™‚
+//   EVENT_SEL_CHANGED:        é¸æŠç¯„å›²ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚
+//   EVENT_CHANGED:            ãƒ†ã‚­ã‚¹ãƒˆãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚
+//   EVENT_CHAR:               æ–‡å­—ãŒå…¥åŠ›ã•ã‚ŒãŸæ™‚
+//   EVENT_MODE_CHANGED:       ç·¨é›†ãƒ¢ãƒ¼ãƒ‰ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚
+//   EVENT_DOC_SEL_CHANGED:    ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªæ–‡æ›¸ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚
+//   EVENT_DOC_CLOSE:          æ–‡æ›¸ã‚’é–‰ã˜ãŸæ™‚
+//   EVENT_TAB_MOVED:          ã‚¿ãƒ–ãŒç§»å‹•ã•ã‚ŒãŸæ™‚
+//   EVENT_CUSTOM_BAR_CLOSING: ã‚«ã‚¹ã‚¿ãƒ ãƒãƒ¼ã‚’é–‰ã˜ã‚ˆã†ã¨ã—ãŸæ™‚
+//   EVENT_CUSTOM_BAR_CLOSED:  ã‚«ã‚¹ã‚¿ãƒ ãƒãƒ¼ã‚’é–‰ã˜ãŸæ™‚
+//   EVENT_TOOL_BAR_CLOSED:    ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’é–‰ã˜ãŸæ™‚
+//   EVENT_TOOL_BAR_SHOW:      ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒè¡¨ç¤ºã•ã‚ŒãŸæ™‚
+//   EVENT_IDLE:               ã‚¢ã‚¤ãƒ‰ãƒ«æ™‚
 
 EXTERN_C void WINAPI OnEvents(HWND hwnd, UINT nEvent, LPARAM lParam)
 {
-	//
+	//std::ifstream ifs("C:\\work\\mery-plugin-sdk\\SDK\\C\\Basic\\sampleData\\data.json");
+	//std::istreambuf_iterator<char> it(ifs);
+	//std::istreambuf_iterator<char> last;
+	//std::string str(it, last);
+
+
+	//rapidjson::Document doc;
+	//doc.Parse(str.c_str());
+	if (nEvent == EVENT_CREATE_FRAME)
+	{
+		Editor_LoadFile(hwnd, L"C:\\Users\\taka\\Downloads\\Mery\\Mery.txt");
+	}
+	if (nEvent == EVENT_DOC_SEL_CHANGED)
+	{
+		//çŠ¶æ…‹ã®è¨˜æ†¶
+	}
+	if (nEvent == EVENT_CHANGED)
+	{
+		//æ™‚é–“çµŒéã§ã‚¢ã‚¯ãƒ†ã‚£ãƒ–æ–‡æ›¸ã®ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—
+	}
+	if (nEvent == EVENT_CREATE) { OutputDebugString(L"ã‚¨ãƒ‡ã‚£ã‚¿ã‚’èµ·å‹•ã—ãŸæ™‚\n"); }
+	if (nEvent == EVENT_CLOSE) { OutputDebugString(L"ã‚¨ãƒ‡ã‚£ã‚¿ã‚’çµ‚äº†ã—ãŸæ™‚\n"); }
+	if (nEvent == EVENT_CREATE_FRAME) { OutputDebugString(L"ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’ä½œæˆã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_CLOSE_FRAME) { OutputDebugString(L"ãƒ•ãƒ¬ãƒ¼ãƒ ãŒç ´æ£„ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_SET_FOCUS) { OutputDebugString(L"ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’å–å¾—ã—ãŸæ™‚\n"); }
+	if (nEvent == EVENT_KILL_FOCUS) { OutputDebugString(L"ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’å¤±ã£ãŸæ™‚\n"); }
+	if (nEvent == EVENT_FILE_OPENED) { OutputDebugString(L"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã„ãŸæ™‚\n"); }
+	if (nEvent == EVENT_FILE_SAVED) { OutputDebugString(L"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä¿å­˜ã—ãŸæ™‚\n"); }
+	if (nEvent == EVENT_MODIFIED) { OutputDebugString(L"æ›´æ–°ã®çŠ¶æ…‹ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_CARET_MOVED) { OutputDebugString(L"ã‚«ãƒ¼ã‚½ãƒ«ãŒç§»å‹•ã—ãŸæ™‚\n"); }
+	if (nEvent == EVENT_SCROLL) { OutputDebugString(L"ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_SEL_CHANGED) { OutputDebugString(L"é¸æŠç¯„å›²ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_CHANGED) { OutputDebugString(L"ãƒ†ã‚­ã‚¹ãƒˆãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_CHAR) { OutputDebugString(L"æ–‡å­—ãŒå…¥åŠ›ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_MODE_CHANGED) { OutputDebugString(L"ç·¨é›†ãƒ¢ãƒ¼ãƒ‰ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_DOC_SEL_CHANGED) { OutputDebugString(L"ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªæ–‡æ›¸ãŒå¤‰æ›´ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_DOC_CLOSE) { OutputDebugString(L"æ–‡æ›¸ã‚’é–‰ã˜ãŸæ™‚\n"); }
+	if (nEvent == EVENT_TAB_MOVED) { OutputDebugString(L"ã‚¿ãƒ–ãŒç§»å‹•ã•ã‚ŒãŸæ™‚\n"); }
+	if (nEvent == EVENT_CUSTOM_BAR_CLOSING) { OutputDebugString(L"ã‚«ã‚¹ã‚¿ãƒ ãƒãƒ¼ã‚’é–‰ã˜ã‚ˆã†ã¨ã—ãŸæ™‚\n"); }
+	if (nEvent == EVENT_CUSTOM_BAR_CLOSED) { OutputDebugString(L"ã‚«ã‚¹ã‚¿ãƒ ãƒãƒ¼ã‚’é–‰ã˜ãŸæ™‚\n"); }
+	if (nEvent == EVENT_TOOL_BAR_CLOSED) { OutputDebugString(L"ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’é–‰ã˜ãŸæ™‚\n"); }
+	if (nEvent == EVENT_TOOL_BAR_SHOW) { OutputDebugString(L"ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ãŒè¡¨ç¤ºã•ã‚ŒãŸæ™‚\n"); }
+	//if (nEvent == EVENT_IDLE) { OutputDebugString(L"ã‚¢ã‚¤ãƒ‰ãƒ«æ™‚\n"); }
+
 }
 
 // -----------------------------------------------------------------------------
 // PluginProc
-//   ƒvƒ‰ƒOƒCƒ“‚É‘—‚ç‚ê‚éƒƒbƒZ[ƒW‚ğˆ—‚µ‚Ü‚·
-// ƒpƒ‰ƒ[ƒ^
-//   hwnd:   ƒEƒBƒ“ƒhƒE‚Ìƒnƒ“ƒhƒ‹
-//   nMsg:   ƒƒbƒZ[ƒW
-//   wParam: ƒƒbƒZ[ƒW“Á—L‚Ì’Ç‰Áî•ñ
-//   lParam: ƒƒbƒZ[ƒW“Á—L‚Ì’Ç‰Áî•ñ
-// –ß‚è’l
-//   ƒƒbƒZ[ƒW‚É‚æ‚èˆÙ‚È‚è‚Ü‚·
+//   ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã«é€ã‚‰ã‚Œã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å‡¦ç†ã—ã¾ã™
+// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+//   hwnd:   ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ãƒãƒ³ãƒ‰ãƒ«
+//   nMsg:   ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+//   wParam: ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ç‰¹æœ‰ã®è¿½åŠ æƒ…å ±
+//   lParam: ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ç‰¹æœ‰ã®è¿½åŠ æƒ…å ±
+// æˆ»ã‚Šå€¤
+//   ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«ã‚ˆã‚Šç•°ãªã‚Šã¾ã™
 
 EXTERN_C LRESULT WINAPI PluginProc(HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
-	wchar_t szName[] = L"Šî–{“I‚ÈƒTƒ“ƒvƒ‹";
+	wchar_t szName[] = L"åŸºæœ¬çš„ãªã‚µãƒ³ãƒ—ãƒ«";
 	wchar_t szVersion[] = L"Version 2.0.0.0";
 	switch(nMsg)
 	{

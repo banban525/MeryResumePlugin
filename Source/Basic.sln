@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "Basic.vcxproj", "{0D1D2F69-8166-4A3A-86D1-4D15C260AADC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RapidJsonTest", "..\RapidJsonTest\RapidJsonTest.vcxproj", "{A912BF50-5C14-43A4-8345-6C766F63540E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RapidJsonTrial", "trials\RapidJsonTrial\RapidJsonTrial.vcxproj", "{6B2E3F06-9080-4D75-9E67-5C5927E4563C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +21,14 @@ Global
 		{0D1D2F69-8166-4A3A-86D1-4D15C260AADC}.Release|Win32.ActiveCfg = Release|Win32
 		{0D1D2F69-8166-4A3A-86D1-4D15C260AADC}.Release|Win32.Build.0 = Release|Win32
 		{0D1D2F69-8166-4A3A-86D1-4D15C260AADC}.Release|x64.ActiveCfg = Release|Win32
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Debug|Win32.Build.0 = Debug|Win32
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Debug|x64.ActiveCfg = Debug|x64
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Debug|x64.Build.0 = Debug|x64
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Release|Win32.ActiveCfg = Release|Win32
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Release|Win32.Build.0 = Release|Win32
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Release|x64.ActiveCfg = Release|x64
-		{A912BF50-5C14-43A4-8345-6C766F63540E}.Release|x64.Build.0 = Release|x64
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Debug|Win32.Build.0 = Debug|Win32
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Debug|x64.ActiveCfg = Debug|x64
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Debug|x64.Build.0 = Debug|x64
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Release|Win32.ActiveCfg = Release|Win32
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Release|Win32.Build.0 = Release|Win32
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Release|x64.ActiveCfg = Release|x64
+		{6B2E3F06-9080-4D75-9E67-5C5927E4563C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

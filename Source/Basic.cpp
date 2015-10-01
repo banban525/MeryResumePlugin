@@ -42,10 +42,31 @@ void StoreEditorStatus()
 		}
 	}
 
+	wchar_t pluginDataDir[1024];
+	::PathCombine(pluginDataDir, _wgetenv(L"APPDATA"), L"Mery");
+	if (!PathIsDirectory(pluginDataDir))
+	{
+		CreateDirectory(pluginDataDir, NULL);
+	}
+	::PathCombine(pluginDataDir, pluginDataDir, L"plugins");
+	if (!PathIsDirectory(pluginDataDir))
+	{
+		CreateDirectory(pluginDataDir, NULL);
+	}
+	::PathCombine(pluginDataDir, pluginDataDir, L"ResumeMeryPlugin");
+	if (!PathIsDirectory(pluginDataDir))
+	{
+		CreateDirectory(pluginDataDir, NULL);
+	}
+
+
 	std::locale::global(std::locale("japanese"));
 	auto json = EditorStatus::SerializeToJson(status);
 	{
-		std::wofstream ofs(L"C:\\temp\\test.json", std::ios::out);
+		wchar_t statusFilePath[1024];
+		::PathCombine(statusFilePath, pluginDataDir, L"status.json");
+
+		std::wofstream ofs(statusFilePath, std::ios::out);
 		ofs << json;
 	}
 }
@@ -59,7 +80,15 @@ void RestoreEditorStatus()
 	std::locale::global(std::locale("japanese"));
 	std::wstring json(L"");
 	{
-		std::wifstream ifs(L"C:\\temp\\test.json", std::ios::in);
+		wchar_t statusFilePath[1024];
+		::PathCombine(statusFilePath, _wgetenv(L"APPDATA"), L"Mery\\plugins\\ResumeMeryPlugin\\status.json");
+		
+		std::wifstream ifs(statusFilePath, std::ios::in);
+		if (ifs.fail())
+		{
+			restoring_ = false;
+			return;
+		}
 		json.append(std::istreambuf_iterator<wchar_t>(ifs), std::istreambuf_iterator<wchar_t>());
 	}
 	
@@ -93,47 +122,46 @@ EXTERN_C void WINAPI OnCommand(HWND hwnd)
 {
 	//Editor_DocInfo(hwnd, 0, MI_CLOSE_DOC, 0);
 	return;
-	MessageBox(hwnd, L"Hello World!", L"基本的なサンプル", MB_OK);
-	RestoreEditorStatus();
+	//MessageBox(hwnd, L"Hello World!", L"基本的なサンプル", MB_OK);
+	//RestoreEditorStatus();
 
-	std::locale::global(std::locale("japanese"));
-	//Editor_DocSaveFile(hwnd, 0, L"C:\\temp\\a.txt");
+	//std::locale::global(std::locale("japanese"));
 
-	std::wofstream ofs(L"C:\\work\\mery-plugin-sdk\\SDK\\C\\Basic\\storedContent\\aaaa.txt");
+	//std::wofstream ofs(L"C:\\work\\mery-plugin-sdk\\SDK\\C\\Basic\\storedContent\\aaaa.txt");
 
-	LRESULT count = Editor_Info(hwnd, MI_GET_DOC_COUNT, 0);
+	//LRESULT count = Editor_Info(hwnd, MI_GET_DOC_COUNT, 0);
 
-	std::wstring fileNameSum(L"");
-
-
-	for (int i = 0; i < count; i++)
-	{
-		wchar_t fileName[2048];
-		LRESULT result = Editor_DocInfo(hwnd, i, MI_GET_FILE_NAME, (LPARAM)fileName);
-
-		std::wstring fileName2(fileName);
-		fileNameSum += fileName2;
-		fileNameSum += L"\r\n";
+	//std::wstring fileNameSum(L"");
 
 
-		UINT_PTR lineCount = Editor_GetDocLines(hwnd, i, POS_LOGICAL);
-		for (uint32_t lineIndex = 0; lineIndex < lineCount; lineIndex++)
-		{
-			GET_LINE_INFO lineInfo;
-			lineInfo.cch = 0;
-			lineInfo.yLine = lineIndex;
-			lineInfo.flags = FLAG_LOGICAL;
-			UINT_PTR size = Editor_GetLine(hwnd, &lineInfo, nullptr);
-			wchar_t* szLine = new wchar_t[size];
-			lineInfo.cch = size;
-			Editor_GetLine(hwnd, &lineInfo, szLine);
-			ofs << szLine << std::endl;
-			delete szLine;
-		}
-	}
-	ofs.close();
+	//for (int i = 0; i < count; i++)
+	//{
+	//	wchar_t fileName[2048];
+	//	LRESULT result = Editor_DocInfo(hwnd, i, MI_GET_FILE_NAME, (LPARAM)fileName);
 
-	MessageBox(hwnd, fileNameSum.c_str(), L"Hello World!", MB_OK);
+	//	std::wstring fileName2(fileName);
+	//	fileNameSum += fileName2;
+	//	fileNameSum += L"\r\n";
+
+
+	//	UINT_PTR lineCount = Editor_GetDocLines(hwnd, i, POS_LOGICAL);
+	//	for (uint32_t lineIndex = 0; lineIndex < lineCount; lineIndex++)
+	//	{
+	//		GET_LINE_INFO lineInfo;
+	//		lineInfo.cch = 0;
+	//		lineInfo.yLine = lineIndex;
+	//		lineInfo.flags = FLAG_LOGICAL;
+	//		UINT_PTR size = Editor_GetLine(hwnd, &lineInfo, nullptr);
+	//		wchar_t* szLine = new wchar_t[size];
+	//		lineInfo.cch = size;
+	//		Editor_GetLine(hwnd, &lineInfo, szLine);
+	//		ofs << szLine << std::endl;
+	//		delete szLine;
+	//	}
+	//}
+	//ofs.close();
+
+	//MessageBox(hwnd, fileNameSum.c_str(), L"Hello World!", MB_OK);
 }
 
 // -----------------------------------------------------------------------------

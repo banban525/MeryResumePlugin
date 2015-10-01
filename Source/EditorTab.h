@@ -1,7 +1,6 @@
-// RapidJsonTrial.cpp : コンソール アプリケーションのエントリ ポイントを定義します。
-//
+#pragma once
 
-#include "stdafx.h"
+
 #include<vector>
 #include<string>
 #include<iostream>
@@ -118,27 +117,3 @@ public:
 		return wstr;
 	}
 };
-
-int main()
-{
-	std::locale::global(std::locale(""));
-	std::wcout.imbue(std::locale(""));
-
-	EditorStatus status;
-	status.AddTab(EditorTab(L"あああ", L"いいい"));
-	status.AddTab(EditorTab(L"ううう", L"えええ"));
-
-	auto str = EditorStatus::SerializeToJson(status);
-	std::wcout << str << std::endl;
-	
-
-	status = EditorStatus::DeserializeFromJson(str);
-
-	status.Tabs().size();
-	
-	str = EditorStatus::SerializeToJson(status);
-	std::wcout << str << std::endl;
-
-    return 0;
-}
-

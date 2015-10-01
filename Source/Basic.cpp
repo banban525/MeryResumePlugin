@@ -1,11 +1,87 @@
 ﻿#include "stdafx.h"
 #include "plugin.h"
+#include "EditorTab.h"
 #include "rapidjson/document.h"
+
+#include<vector>
 
 #define IDS_MENU_TEXT 1
 #define IDS_STATUSMESSAGE 2
 #define IDI_ICON 101
 
+
+std::vector<HWND> windows_;
+EditorStatus status_;
+bool restoring_;
+
+
+void StoreEditorStatus()
+{
+	if (restoring_)
+	{
+		return;
+	}
+
+	EditorStatus status;
+
+	for (int i = 0; i < windows_.size(); i++)
+	{
+		HWND hwnd = windows_[i];
+
+		LRESULT count = Editor_Info(hwnd, MI_GET_DOC_COUNT, 0);
+
+		for (int i = 0; i < count; i++)
+		{
+			wchar_t fileNameRaw[2048];
+			LRESULT result = Editor_DocInfo(hwnd, i, MI_GET_FILE_NAME, (LPARAM)fileNameRaw);
+			auto docHandle = Editor_Info(hwnd, MI_INDEX_TO_DOC, i);
+
+			std::wstring fileName(fileNameRaw);
+			std::wstring& id = std::to_wstring(docHandle);
+			status.AddTab(EditorTab(fileName, id));
+		}
+	}
+
+	std::locale::global(std::locale("japanese"));
+	auto json = EditorStatus::SerializeToJson(status);
+	{
+		std::wofstream ofs(L"C:\\temp\\test.json", std::ios::out);
+		ofs << json;
+	}
+}
+
+int restoreCounter_ = 0;
+
+void RestoreEditorStatus()
+{
+	restoring_ = true;
+	restoreCounter_ = 0;
+	std::locale::global(std::locale("japanese"));
+	std::wstring json(L"");
+	{
+		std::wifstream ifs(L"C:\\temp\\test.json", std::ios::in);
+		json.append(std::istreambuf_iterator<wchar_t>(ifs), std::istreambuf_iterator<wchar_t>());
+	}
+	
+	auto status = EditorStatus::DeserializeFromJson(json);
+	for (auto it = status.Tabs().begin(); it != status.Tabs().end(); it++)
+	{
+		auto& filePath = it->GetFilePath();
+
+		if (PathFileExists(filePath.c_str()))
+		{
+			wchar_t currentFileName[1024];
+			auto result = Editor_Info(windows_[0], MI_GET_FILE_NAME, (LPARAM)currentFileName);
+			if (lstrlenW(currentFileName) != 0 || Editor_GetModified(windows_[0]))
+			{
+				Editor_New(windows_[0]);
+			}
+			Editor_LoadFile(windows_[0], filePath.c_str());
+		}
+	}
+	restoring_ = false;
+	StoreEditorStatus();
+}
 
 // -----------------------------------------------------------------------------
 // OnCommand
@@ -15,8 +91,11 @@
 
 EXTERN_C void WINAPI OnCommand(HWND hwnd)
 {
-	MessageBox(hwnd, L"Hello World!", L"基本的なサンプル", MB_OK);	
-	
+	//Editor_DocInfo(hwnd, 0, MI_CLOSE_DOC, 0);
+	return;
+	MessageBox(hwnd, L"Hello World!", L"基本的なサンプル", MB_OK);
+	RestoreEditorStatus();
+
 	std::locale::global(std::locale("japanese"));
 	//Editor_DocSaveFile(hwnd, 0, L"C:\\temp\\a.txt");
 
@@ -148,12 +227,16 @@ EXTERN_C void WINAPI OnEvents(HWND hwnd, UINT nEvent, LPARAM lParam)
 	//doc.Parse(str.c_str());
 	if (nEvent == EVENT_CREATE_FRAME)
 	{
-		Editor_LoadFile(hwnd, L"C:\\Users\\taka\\Downloads\\Mery\\Mery.txt");
+		//Editor_LoadFile(hwnd, L"C:\\Users\\taka\\Downloads\\Mery\\Mery.txt");
+		windows_.push_back(hwnd);
+		RestoreEditorStatus();
 	}
 	if (nEvent == EVENT_DOC_SEL_CHANGED)
 	{
 		//状態の記憶
+		StoreEditorStatus();
 	}
+
 	if (nEvent == EVENT_CHANGED)
 	{
 		//時間経過でアクティブ文書のバックアップ
